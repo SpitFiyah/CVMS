@@ -1,0 +1,42 @@
+name: Oracle 11g integration
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  schema-and-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      CVMS_DB_ADMIN_PASSWORD: LocalCiAdmin123
+      ORACLE_PASSWORD: LocalCiSchema123
+      ORACLE_USER: cvms_dev
+    steps:
+      - uses: actions/checkout@v4
+      - name: Start disposable Oracle 11g XE
+        run: docker compose up -d --wait --wait-timeout 300
+      - name: Install schema and run database assertions
+        shell: bash
+        run: |
+          {
+            printf '%s\n' "$ORACLE_PASSWORD"
+            printf '%s\n' 'select banner from v$version;' \
+              '@sql/install_schema.sql' \
+              '@sql/03_seed_data/01_seed_source.sql' \
+              '@scripts/validate_database.sql' \
+              'exit success'
+          } | docker compose exec -T oracle sqlplus -L "$ORACLE_USER@//localhost:1521/XE" | tee oracle-test.log
+          grep -F 'Oracle schema, view and workflow assertions passed.' oracle-test.log
+          grep -F 'Oracle publication and replay assertions passed.' oracle-test.log
+          if grep -Eq '^(SP2-|ORA-|PLS-)' oracle-test.log; then
+            exit 1
+          fi
+      - name: Database startup logs
+        if: failure()
+        run: docker compose logs --tail 100 oracle
+      - name: Stop Oracle
+        if: always()
+        run: docker compose down
