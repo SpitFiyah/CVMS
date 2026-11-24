@@ -8,7 +8,7 @@ Local implementation and verification. Target remote is `https://github.com/Spit
 
 - Research and design documented in the project specification, architecture, relational model, normalization and data dictionary. Mermaid source and GitHub Markdown blocks are available.
 - Implemented 16 core tables, five staging tables, ID sequences and triggers, a publication procedure, five views, three workflow entry points, a status history trigger, 20 reports and Oracle assertions.
-- Implemented NVD retrieval, raw archiving, CSV generation, rejection accounting, snapshot replay and Oracle staging. Ten Python unit tests passed, including CPE Dictionary reconciliation using mocked API responses. Five authentic snapshot records were retrieved through the web path and replayed offline with five accepted and zero rejected. The batch preserves the revision used by the fictional seed.
+- Implemented NVD retrieval, raw archiving, CSV generation, rejection accounting, snapshot replay and Oracle staging. Eleven Python unit tests passed, including CPE Dictionary reconciliation using mocked API responses. Five authentic snapshot records were retrieved through the web path and replayed offline with five accepted and zero rejected. The batch preserves the revision used by the fictional seed.
 - Prepared a fictional demo with eight assets, three analysts, two reviewed exact-CPE findings and two tasks. These are scripted expected counts pending actual Oracle execution.
 - Prepared GitHub issue, milestone and pull request drafts and a Python Actions workflow.
 

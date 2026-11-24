@@ -29,13 +29,27 @@ def read_batch(batch):
         raise ValueError("Unsupported batch")
     if not manifest["raw_pages"]:
         raise ValueError("Batch has no raw pages")
-    raw_names = set()
+    raw_items = {}
+    next_index = 0
     for page in manifest["raw_pages"]:
-        filename = f"cves-{page['start_index']:08d}.json"
-        if page["file"] != f"raw/{filename}" or filename in raw_names:
-            raise ValueError("Invalid or duplicate raw page path")
-        checked_file(batch, page["file"], page["sha256"])
-        raw_names.add(filename)
+        start = page["start_index"]
+        if type(start) is not int or start != next_index:
+            raise ValueError("Invalid or noncontiguous raw page index")
+        filename = f"cves-{start:08d}.json"
+        if page["file"] != f"raw/{filename}":
+            raise ValueError("Invalid raw page path")
+        payload = json.loads(checked_file(batch, page["file"], page["sha256"]))
+        items = payload["vulnerabilities"]
+        if payload["startIndex"] != start or not isinstance(items, list):
+            raise ValueError("Raw page does not match manifest pagination")
+        if not items and (start != 0 or len(manifest["raw_pages"]) != 1):
+            raise ValueError("Unexpected empty raw page")
+        raw_items.update({
+            f"{filename}#/vulnerabilities/{index}": item
+            for index, item in enumerate(items)
+        })
+        next_index += len(items)
+
     rows = {}
     for table, fields in FIELDS.items():
         filename = f"{table}.csv"
@@ -45,14 +59,26 @@ def read_batch(batch):
             raise ValueError(f"Unexpected header in {filename}")
         rows[table] = list(reader)
         for row in rows[table]:
-            if None in row or None in row.values() or row["row_locator"].split("#", 1)[0] not in raw_names:
+            if None in row or None in row.values() or row["row_locator"] not in raw_items:
                 raise ValueError(f"Invalid row in {filename}")
+
+    accepted = {row["row_locator"] for row in rows["vulnerability"]}
+    rejected = {row["row_locator"] for row in rows["reject"]}
     if (
-        manifest["accepted"] != len(rows["vulnerability"])
-        or manifest["rejected"] != len(rows["reject"])
-        or manifest["retrieved"] != manifest["accepted"] + manifest["rejected"]
+        manifest["accepted"] != len(rows["vulnerability"]) or len(accepted) != manifest["accepted"]
+        or manifest["rejected"] != len(rows["reject"]) or len(rejected) != manifest["rejected"]
+        or manifest["retrieved"] != len(raw_items)
+        or accepted & rejected or (accepted | rejected) != raw_items.keys()
     ):
-        raise ValueError("Manifest counts do not reconcile")
+        raise ValueError("Manifest counts and row locators do not reconcile")
+    for row in rows["vulnerability"]:
+        item = raw_items[row["row_locator"]]
+        cve = item.get("cve") if isinstance(item, dict) else None
+        if not isinstance(cve, dict) or cve.get("id") != row["cve_id"]:
+            raise ValueError("Accepted CVE does not match the archived source identifier")
+    for table in ("app_config", "criterion", "reference", "reference_tag"):
+        if any(row["row_locator"] not in accepted for row in rows[table]):
+            raise ValueError(f"{table} row has no accepted CVE")
     return manifest, rows
 
 

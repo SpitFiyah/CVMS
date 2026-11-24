@@ -1,4 +1,5 @@
 import csv
+from hashlib import sha256
 from io import BytesIO
 import json
 from pathlib import Path
@@ -126,3 +127,25 @@ class ClientTests(TestCase):
                 csv.writer(target).writerow(["tampered"])
             with self.assertRaisesRegex(ValueError, "Checksum mismatch"):
                 read_batch(batch)
+
+    def test_batch_rejects_rehashed_csv_with_wrong_source_locator(self):
+        items = [example(), {"cve": {"id": "invalid"}}]
+        raw = json.dumps({"startIndex": 0, "totalResults": len(items), "vulnerabilities": items}).encode()
+        client = NvdClient(opener=lambda *a, **k: BytesIO(raw))
+        with TemporaryDirectory() as temp:
+            batch = Path(temp) / "batch"
+            manifest = write_batch(client, batch, {}, page_size=2)
+            filename = "vulnerability.csv"
+            path = batch / filename
+            original = path.read_bytes()
+            for locator, message in (
+                (b"vulnerabilities/1", "row locators do not reconcile"),
+                (b"vulnerabilities/2", "Invalid row"),
+            ):
+                with self.subTest(locator=locator):
+                    updated = original.replace(b"vulnerabilities/0", locator)
+                    path.write_bytes(updated)
+                    manifest["files"][filename] = sha256(updated).hexdigest()
+                    (batch / "manifest.json").write_text(json.dumps(manifest))
+                    with self.assertRaisesRegex(ValueError, message):
+                        read_batch(batch)
