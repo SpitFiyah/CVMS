@@ -25,13 +25,19 @@ jobs:
       - name: Install schema and run database assertions
         shell: bash
         run: |
+          docker compose exec -T oracle sh -ec '
+            for script do
+              test -r "$script" || { printf "Cannot read %s\n" "$script" >&2; exit 1; }
+            done
+          ' sh /workspace/sql/install_schema.sql /workspace/sql/03_seed_data/01_seed_source.sql /workspace/scripts/validate_database.sql
           {
             printf '%s\n' 'whenever sqlerror exit sql.sqlcode rollback' 'set define off'
             printf 'connect %s/"%s"@//127.0.0.1:1521/XE\n' "$ORACLE_USER" "$ORACLE_PASSWORD"
             printf '%s\n' 'select banner from v$version;' \
-              '@sql/install_schema.sql' \
-              '@sql/03_seed_data/01_seed_source.sql' \
-              '@scripts/validate_database.sql' \
+              'set echo on' \
+              '@/workspace/sql/install_schema.sql' \
+              '@/workspace/sql/03_seed_data/01_seed_source.sql' \
+              '@/workspace/scripts/validate_database.sql' \
               'exit success'
           } | docker compose exec -T -w /workspace oracle sqlplus -s -L /nolog | tee oracle-test.log
           grep -F 'Oracle schema, view and workflow assertions passed.' oracle-test.log
@@ -78,7 +84,7 @@ jobs:
           {
             printf '%s\n' 'whenever sqlerror exit sql.sqlcode rollback' 'set define off'
             printf 'connect %s/"%s"@//127.0.0.1:1521/XE\n' "$ORACLE_USER" "$ORACLE_PASSWORD"
-            printf '%s\n' '@sql/03_seed_data/02_seed_fictional_demo.sql' 'exit success'
+            printf '%s\n' '@/workspace/sql/03_seed_data/02_seed_fictional_demo.sql' 'exit success'
           } | docker compose exec -T -w /workspace oracle sqlplus -s -L /nolog
           python - <<'PYTHON'
           import os
