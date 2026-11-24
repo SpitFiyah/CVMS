@@ -8,14 +8,18 @@ permissions:
 
 jobs:
   schema-and-tests:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     timeout-minutes: 15
     env:
       CVMS_DB_ADMIN_PASSWORD: LocalCiAdmin123
       ORACLE_PASSWORD: LocalCiSchema123
       ORACLE_USER: cvms_dev
+      ORACLE_DSN: 127.0.0.1:1521/XE
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
       - name: Start disposable Oracle 11g XE
         run: docker compose up -d --wait --wait-timeout 300
       - name: Install schema and run database assertions
@@ -34,6 +38,64 @@ jobs:
           if grep -Eq '^(SP2-|ORA-|PLS-)' oracle-test.log; then
             exit 1
           fi
+      - name: Install Oracle client for the Python loader
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libaio1
+          archive="$RUNNER_TEMP/instantclient-basic.zip"
+          curl --fail --silent --show-error --location --retry 3 \
+            https://download.oracle.com/otn_software/linux/instantclient/1933000/instantclient-basic-linux.x64-19.33.0.0.0dbru.zip \
+            --output "$archive"
+          printf '%s  %s\n' a2fc1f32b776c1b574c231727d067cca522259c5d8854afdc41caf3ea8f7ef0d "$archive" | sha256sum --check
+          unzip -q "$archive" -d "$RUNNER_TEMP"
+          printf 'LD_LIBRARY_PATH=%s\n' "$RUNNER_TEMP/instantclient_19_33" >> "$GITHUB_ENV"
+          python -m pip install 'oracledb==3.3.0'
+      - name: Import and replay the authentic snapshot
+        shell: bash
+        run: |
+          batch="$RUNNER_TEMP/cvms-demo"
+          python -m etl.normalizer "$batch" --snapshot data/samples/nvd-five-records.json
+          python -m etl.importer "$batch" | tee "$RUNNER_TEMP/first-import.json"
+          python -m etl.importer "$batch" | tee "$RUNNER_TEMP/repeat-import.json"
+          python - <<'PYTHON'
+          import json
+          import os
+          from pathlib import Path
+
+          directory = Path(os.environ["RUNNER_TEMP"])
+          first = json.loads((directory / "first-import.json").read_text())
+          repeat = json.loads((directory / "repeat-import.json").read_text())
+          for result, applied in ((first, 5), (repeat, 0)):
+              observed = {key: result[key] for key in ("retrieved", "accepted", "rejected", "applied")}
+              assert observed == {"retrieved": 5, "accepted": 5, "rejected": 0, "applied": applied}, observed
+          assert first["run_id"] != repeat["run_id"], (first, repeat)
+          PYTHON
+      - name: Seed the fictional demo and verify stored results
+        shell: bash
+        run: |
+          {
+            printf '%s\n' "$ORACLE_PASSWORD"
+            printf '%s\n' '@sql/03_seed_data/02_seed_fictional_demo.sql' 'exit success'
+          } | docker compose exec -T oracle sqlplus -L "$ORACLE_USER@//localhost:1521/XE"
+          python - <<'PYTHON'
+          import os
+          import oracledb
+
+          oracledb.init_oracle_client()
+          expected = {
+              "vulnerability": 5, "applicability_config": 5, "vuln_software": 13,
+              "vuln_reference": 32, "asset": 8, "analyst": 3, "asset_software": 2,
+              "finding_evidence": 2, "v_unresolved_vulnerabilities": 2,
+              "v_remediation_summary": 2,
+          }
+          with oracledb.connect(user=os.environ["ORACLE_USER"], password=os.environ["ORACLE_PASSWORD"],
+                                dsn=os.environ["ORACLE_DSN"]) as connection, connection.cursor() as cursor:
+              for name, count in expected.items():
+                  actual, = cursor.execute(f"SELECT COUNT(*) FROM {name}").fetchone()
+                  assert actual == count, (name, actual, count)
+          print("Oracle demo counts verified.")
+          PYTHON
       - name: Database startup logs
         if: failure()
         run: docker compose logs --tail 100 oracle

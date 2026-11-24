@@ -10,7 +10,7 @@ Local implementation and verification. Target remote is `https://github.com/Spit
 - Implemented 16 core tables, five staging tables, ID sequences and triggers, a publication procedure, five views, three workflow entry points, a status history trigger, 20 reports and Oracle assertions.
 - Implemented NVD retrieval, raw archiving, CSV generation, rejection accounting, snapshot replay and Oracle staging. Eleven Python unit tests passed, including CPE Dictionary reconciliation using mocked API responses. Five authentic snapshot records were retrieved through the web path and replayed offline with five accepted and zero rejected. The batch preserves the revision used by the fictional seed.
 - Prepared a fictional demo with eight assets, three analysts, two reviewed exact-CPE findings and two tasks. These are scripted expected counts pending actual Oracle execution.
-- Published the feature branch. GitHub Actions passed Python tests (45436939995) and Mermaid rendering (45436939858) at commit `8ba0287`. Prepared an Oracle 11g integration workflow for the schema, source seed and database assertions.
+- Published the feature branch. GitHub Actions passed Python tests (45436939995) and Mermaid rendering (45436939858) at commit `8ba0287`. Prepared an Oracle 11g integration workflow for schema installation, SQL assertions, Python import and replay, and fictional demo counts.
 
 ## Pending and blocked
 
