@@ -3,7 +3,8 @@
 | Check | Expected result | Observed result | Status |
 | --- | --- | --- | --- |
 | Python and Git probes | Executables available | Python 3.14.4 and Git 2.53.0 | Pass |
-| Python unit suite | Parser, validation, retry, pagination, CSV archive and checksum assertions pass | Eight tests passed with `python3 -m unittest discover -s tests -v` | Pass |
+| Python unit suite | Parser, validation, retry, pagination, CSV archive and checksum assertions pass | Ten tests passed with `python3 -m unittest discover -s tests -v` | Pass |
+| CPE Dictionary | Archive the search, retain exact entries and identify capped results | Two tests passed using mocked dictionary pages. Live dictionary access is unverified. | Pass for mocked responses |
 | NVD snapshot replay | Replay one authentic record | One retrieved, one accepted, zero rejected using the bundled snapshot. Oracle import count is zero. | Pass for offline ETL |
 | Terminal API | Live collector can reach NVD | Name resolution failed after retry. Independent web request returned an authentic source page. | Blocked for terminal ETL |
 | SQL static inventory | Twenty report queries, five views, coherent installer paths and 11g identifier lengths | Checks passed for these structural properties | Pass for static checks |

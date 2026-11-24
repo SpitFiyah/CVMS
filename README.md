@@ -15,4 +15,6 @@ CVMS is an academic Oracle 11g XE project for connecting public disclosures to t
 
 Run `python3 -m etl.normalizer data/processed/live --max-records 30` in a terminal with NVD connectivity. Optional filters include `--cve-id` and `--cpe-name`. The client uses `NVD_API_KEY` when set. Keep the original batch paths available as audit evidence and run the importer against the staged batch.
 
+Run `python3 -m etl.cpe_dictionary data/processed/cpe-check 'cpe:2.3:a:eric_allman:sendmail:5.58:*:*:*:*:*:*:*'` to reconcile an inventory CPE against the official dictionary. The report lists exact dictionary entries and deprecation flags, indicates capped or changing result sets, and links checksummed raw pages. Dictionary identity supports inventory review. Applicability still depends on the corresponding CVE configuration.
+
 See the [architecture](ARCHITECTURE.md), [Mermaid ER diagram](docs/er-diagram.md), [relational schema](docs/relational-schema.md), [database workflow](docs/database-workflow.md) and [test report](docs/test-report.md). See [project status](PROJECT_STATUS.md) for verified progress and outstanding work.
