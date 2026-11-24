@@ -1,0 +1,23 @@
+services:
+  oracle:
+    image: gvenzl/oracle-xe:11.2.0.2-slim
+    environment:
+      ORACLE_PASSWORD: ${CVMS_DB_ADMIN_PASSWORD:?Set CVMS_DB_ADMIN_PASSWORD in .env}
+      APP_USER: ${ORACLE_USER:-cvms_dev}
+      APP_USER_PASSWORD: ${ORACLE_PASSWORD:?Set ORACLE_PASSWORD in .env}
+    ports:
+      - "127.0.0.1:1521:1521"
+    volumes:
+      - oracle-data:/u01/app/oracle/oradata
+      - ./sql:/workspace/sql:ro
+      - ./scripts:/workspace/scripts:ro
+    working_dir: /workspace
+    healthcheck:
+      test: ["CMD", "healthcheck.sh"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 60s
+
+volumes:
+  oracle-data:

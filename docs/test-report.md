@@ -8,6 +8,7 @@
 | NVD snapshot replay | Replay five authentic records | Five retrieved, five accepted, zero rejected, 13 applicability criteria and 32 source-specific references using the bundled snapshot. Oracle import count is zero. | Pass for offline ETL |
 | Terminal API | Live collector can reach NVD | Name resolution failed after retry. Independent web request returned an authentic source page. | Blocked for terminal ETL |
 | SQL static inventory | Twenty report queries, five views, coherent installer paths and 11g identifier lengths | Checks passed for these structural properties | Pass for static checks |
+| Docker Compose | Start local Oracle XE and make project SQL available | Compose YAML was checked locally. The sandbox could not start the Docker CLI, so a container was not started. | Pending runtime |
 | Oracle installation and tests | Oracle accepts the schema and assertions pass, including rollback | No Oracle client or configured connection available. DDL and tests were not executed. | Pending |
 | Import repeatability | Oracle applies first batch, then returns zero changes on replay and rejects an equal-time conflict | Publication assertions cover replay, stale revision, equal-time conflict, stable IDs, child refresh and caller rollback. No Oracle run evidence available. | Pending |
 | Remote repository and GitHub CI | Target accessible and Actions status verified | `git ls-remote` failed DNS and the web lookup could not read the repository | Blocked |
