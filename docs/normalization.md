@@ -1,0 +1,7 @@
+# Normalization
+
+In the proposed model, source name determines source properties, run ID determines acquisition facts, CVE ID determines current vulnerability facts, and the CPE part/vendor/product triple determines software catalogue facts. Each dependency has a candidate key as its determinant. Source URLs live with the source and run counts live with the run.
+
+The complete configuration key determines its source expression. A criterion's full configuration/path key determines its flags, range and optional product link. An installation's asset/product/slot key determines its current version and installation date. The asset/CVE key determines the finding's lifecycle, with individual evidence rows carrying their own review facts. Task ID determines current assignment and status, while history ID determines an individual status change. Reference tags have a composite key with no dependent descriptive columns. These choices remove repeating groups, partial dependencies and transitive copies of organization or source details.
+
+Intentional exceptions include the immutable configuration text plus its query projection, the run's audit counters and the CVE's latest applied run pointer alongside source identity. Publication must check audit reconciliation, source consistency and projection integrity. Derive report totals from views. Preserve evidence snapshots as point-in-time facts even when they duplicate a historical source value.
