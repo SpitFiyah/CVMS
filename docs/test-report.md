@@ -15,3 +15,14 @@
 | Mermaid | Diagrams render on GitHub | Local ER source and Markdown block match and entities align with DDL. Hosted run 45434640247 failed at Chromium startup. On Ubuntu 22.04 the [Mermaid run](https://github.com/SpitFiyah/CVMS/actions/runs/45478293669) passed at `e5c049d`. | Pass |
 
 Source of the offline snapshot is documented alongside the [sample](../data/samples/README.md).
+
+## Local Oracle 11g live-data import
+
+The local Compose database installed the CVMS schema and seeded the NVD source. The NVD collector retrieved 50 real CVEs. Reprocessing the archived batch preserved a legacy FTP advisory reference and produced 50 CVEs, 134 applicability criteria, and 266 source-specific references. The Docker loader returned these results in the project owner's terminal:
+
+| Run | Retrieved | Accepted | Rejected | Applied |
+| --- | ---: | ---: | ---: | ---: |
+| 1, initial import | 50 | 50 | 0 | 50 |
+| 2, exact replay | 50 | 50 | 0 | 0 |
+
+The live batch is stored locally under `data/processed/nvd-live-50-ready/`.

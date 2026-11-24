@@ -12,9 +12,11 @@ Hosted implementation verification passed on `feature/cvms-implementation`, whic
 - Prepared a fictional demo with eight assets, three analysts, two reviewed exact-CPE findings and two tasks. These counts passed against the seeded Oracle database in hosted CI.
 - Published the feature branch. Oracle 11g integration, Python tests and Mermaid rendering passed at `e5c049d`. The Oracle run installed the schema, ran SQL assertions, imported the authentic snapshot, checked exact replay and verified the fictional demo.
 
+- Verified live NVD collection and a local Docker-backed Oracle import of 50 authentic CVEs. Exact replay accepted all 50 and applied zero changes.
+
 ## Pending and blocked
 
 - Publishing the GitHub tracking items. The default branch already contains the verified implementation. The pushes and hosted results were supplied from the user's authenticated terminal. GitHub API access from this session is unavailable.
-- Broader live NVD sampling and live CPE Dictionary reconciliation. The bundled snapshot supports the verified five-record demonstration. The terminal collector could not resolve NVD.
+- Live CPE Dictionary reconciliation and execution of the complete SQL reporting set against Oracle.
 
 See [test report](docs/test-report.md) for commands and observed results.
