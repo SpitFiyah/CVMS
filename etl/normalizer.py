@@ -7,6 +7,7 @@ from hashlib import sha256
 import json
 from io import BytesIO
 from pathlib import Path
+from urllib.parse import parse_qs, urlsplit
 
 from .cve_parser import parse_cve
 from .nvd_client import ENDPOINTS, NvdClient
@@ -108,19 +109,35 @@ def main():
     parser.add_argument("--cpe-name")
     parser.add_argument("--page-size", type=int, default=20)
     parser.add_argument("--max-records", type=int, default=50)
-    parser.add_argument("--snapshot", type=Path, help="Replay one previously captured NVD first page")
+    parser.add_argument("--snapshot", type=Path, help="Replay an NVD first page or a directory of archived pages")
     args = parser.parse_args()
     filters = {name: value for name, value in (("cveId", args.cve_id), ("cpeName", args.cpe_name)) if value}
     if args.snapshot:
         if filters:
             parser.error("--snapshot cannot be combined with live API filters")
-        snapshot = args.snapshot.read_bytes()
-        received = json.loads(snapshot)
-        page_length = len(received["vulnerabilities"])
-        if received["startIndex"] != 0 or not 1 <= page_length <= 100:
-            parser.error("--snapshot must contain the first page with 1–100 records")
-        client = NvdClient(opener=lambda *args, **kwargs: BytesIO(snapshot))
-        args.max_records = args.page_size = page_length
+        archive = args.snapshot
+        sources = sorted(archive.glob("cves-*.json")) if archive.is_dir() else [archive]
+        pages = {}
+        retrieved = 0
+        for source in sources:
+            raw = source.read_bytes()
+            response = json.loads(raw)
+            start = response["startIndex"]
+            count = len(response["vulnerabilities"])
+            if start != retrieved or start in pages or count > 100:
+                parser.error("--snapshot must contain contiguous NVD pages starting at index zero")
+            pages[start] = raw
+            retrieved += count
+        if retrieved < 1:
+            parser.error("--snapshot must contain at least one record")
+
+        def open_snapshot(request, **kwargs):
+            start = int(parse_qs(urlsplit(request.full_url).query)["startIndex"][0])
+            return BytesIO(pages[start])
+
+        client = NvdClient(opener=open_snapshot, sleep=lambda _: None)
+        args.max_records = retrieved
+        args.page_size = 100
     else:
         client = NvdClient.from_environment()
     manifest = write_batch(client, args.output, filters,

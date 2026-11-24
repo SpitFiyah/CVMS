@@ -133,8 +133,8 @@ def parse_cve(item):
     for ref in list_of(cve, "references"):
         url = required_text(ref["url"], "reference URL", 1000)
         parsed = urlsplit(url)
-        if parsed.scheme not in {"http", "https"} or not parsed.hostname:
-            raise ValueError("Reference URL must be HTTP or HTTPS")
+        if parsed.scheme not in {"http", "https", "ftp"} or not parsed.hostname:
+            raise ValueError("Reference URL must be HTTP, HTTPS or FTP")
         source = required_text(ref["source"], "reference source", 200)
         tags = ref.get("tags", [])
         if not isinstance(tags, list):

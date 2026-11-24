@@ -149,3 +149,9 @@ class ClientTests(TestCase):
                     (batch / "manifest.json").write_text(json.dumps(manifest))
                     with self.assertRaisesRegex(ValueError, message):
                         read_batch(batch)
+
+    def test_legacy_ftp_reference_is_preserved_as_metadata(self):
+        item = example()
+        url = "ftp://archive.example.invalid/vendor-advisory.txt"
+        item["cve"]["references"] = [{"url": url, "source": "test"}]
+        self.assertEqual(parse_cve(item)["reference"][0]["reference_url"], url)

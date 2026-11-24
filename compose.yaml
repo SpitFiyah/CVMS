@@ -18,5 +18,19 @@ services:
       retries: 12
       start_period: 60s
 
+  loader:
+    profiles: ["etl"]
+    build: ./docker/loader
+    depends_on:
+      oracle:
+        condition: service_healthy
+    environment:
+      ORACLE_USER: ${ORACLE_USER:-cvms_dev}
+      ORACLE_PASSWORD: ${ORACLE_PASSWORD:?Set ORACLE_PASSWORD in .env}
+      ORACLE_DSN: oracle:1521/XE
+    volumes:
+      - ./etl:/workspace/etl:ro
+      - ./data/processed:/workspace/data/processed:ro
+
 volumes:
   oracle-data:
