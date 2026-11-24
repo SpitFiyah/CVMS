@@ -1,0 +1,12 @@
+-- SQL*Plus display defaults for interactive CVMS sessions.
+SET LINESIZE 120
+SET PAGESIZE 100
+SET COLSEP ' | '
+SET NULL '-'
+
+COLUMN cve_id       FORMAT A20   HEADING 'CVE ID'
+COLUMN cvss_version FORMAT A5    HEADING 'CVSS'
+COLUMN cvss_score   FORMAT 990.0 HEADING 'SCORE'
+COLUMN severity     FORMAT A10   HEADING 'SEVERITY'
+COLUMN published    FORMAT A10   HEADING 'PUBLISHED'
+COLUMN nvd_status   FORMAT A20   HEADING 'NVD STATUS'
