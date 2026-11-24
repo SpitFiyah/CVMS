@@ -2,7 +2,7 @@
 
 ## Current phase
 
-Hosted implementation verification passed on the feature branch. Target remote is `https://github.com/SpitFiyah/CVMS.git`. The local feature branch was prepared independently while remote access was unavailable.
+Hosted implementation verification passed on `feature/cvms-implementation`, which the repository administrator confirmed is the default branch. Target remote is `https://github.com/SpitFiyah/CVMS.git`. The local feature branch was prepared independently while remote access was unavailable.
 
 ## Completed and checked
 
@@ -14,7 +14,7 @@ Hosted implementation verification passed on the feature branch. Target remote i
 
 ## Pending and blocked
 
-- Default-branch reconciliation, GitHub project items and PR. The pushes and hosted results were supplied from the user's authenticated terminal. GitHub API access from this session is unavailable.
+- Publishing the GitHub tracking items. The default branch already contains the verified implementation. The pushes and hosted results were supplied from the user's authenticated terminal. GitHub API access from this session is unavailable.
 - Broader live NVD sampling and live CPE Dictionary reconciliation. The bundled snapshot supports the verified five-record demonstration. The terminal collector could not resolve NVD.
 
 See [test report](docs/test-report.md) for commands and observed results.

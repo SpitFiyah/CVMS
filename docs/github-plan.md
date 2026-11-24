@@ -1,6 +1,6 @@
 # GitHub setup and issue drafts
 
-Target repository is `CVMS` at SpitFiyah. Discover the authenticated owner and inspect any existing default branch, conventions, issues and permissions before adopting these drafts. If the repository does not exist, confirm owner and visibility and obtain creation approval. Use `main` for stable releases, `develop` for integration and `feature/*` or `bugfix/*` for reviewed PRs. PRs should link an issue and include scope, files, tests, results and limitations.
+The repository is `SpitFiyah/CVMS`. Its current default branch is `feature/cvms-implementation`. Run `./scripts/sync_github_milestones.sh` from an authenticated terminal to publish milestone verification issues and retain open live-data and report tasks. Discover the authenticated owner and inspect any existing default branch, conventions, issues and permissions before adopting these drafts. If the repository does not exist, confirm owner and visibility and obtain creation approval. Use `main` for stable releases, `develop` for integration and `feature/*` or `bugfix/*` for reviewed PRs. PRs should link an issue and include scope, files, tests, results and limitations.
 
 ## Milestones
 
