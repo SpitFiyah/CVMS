@@ -8,7 +8,8 @@ permissions:
 
 jobs:
   render:
-    runs-on: ubuntu-latest
+    # Ubuntu 24.04 restricts user namespaces for Puppeteer’s bundled Chromium.
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

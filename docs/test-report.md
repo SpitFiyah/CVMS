@@ -12,6 +12,6 @@
 | Oracle installation and tests | Oracle accepts the schema and assertions pass, including rollback | No Oracle client or configured connection available. DDL and tests were not executed. | Pending |
 | Import repeatability | Oracle applies first batch, then returns zero changes on replay and rejects an equal-time conflict | Publication assertions cover replay, stale revision, equal-time conflict, stable IDs, child refresh and caller rollback. No Oracle run evidence available. | Pending |
 | Remote repository and GitHub CI | Target accessible and Actions status verified | `git ls-remote` failed DNS and the web lookup could not read the repository | Blocked |
-| Mermaid | Diagrams render on GitHub | Local ER source and Markdown block match and entities align with DDL. A local Mermaid renderer was unavailable. The Mermaid Actions job was added to render the standalone ER source and both Markdown diagrams when hosted CI runs. | Pending rendering |
+| Mermaid | Diagrams render on GitHub | Local ER source and Markdown block match and entities align with DDL. Hosted run 45434640247 failed at Chromium startup with “No usable sandbox.” The renderer job now targets Ubuntu 22.04 with the browser sandbox enabled. A rerun is pending. | Pending rendering |
 
 Source of the offline snapshot is documented alongside the [sample](../data/samples/README.md).
