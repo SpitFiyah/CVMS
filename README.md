@@ -5,10 +5,10 @@ CVMS is an academic Oracle 11g XE project for connecting public disclosures to t
 ## Offline demonstration
 
 1. Connect SQL*Plus to an empty, dedicated Oracle 11.2 XE development schema. Run `@sql/install_schema.sql`, then `@sql/03_seed_data/01_seed_source.sql`.
-2. Run `python3 -m etl.normalizer data/processed/demo --snapshot data/samples/nvd-one-record.json`. The output directory must be new.
+2. Run `python3 -m etl.normalizer data/processed/demo --snapshot data/samples/nvd-five-records.json`. The output directory must be new.
 3. Export the Oracle settings in [.env.example](.env.example). Install a Python `oracledb` release compatible with your interpreter and compatible 64-bit Oracle Client libraries on the host. The loader uses Thick mode with the system library search path.
-4. Run `python3 -m etl.importer data/processed/demo`. Importing the same snapshot again should report one accepted row and zero applied rows.
-5. Run `@sql/03_seed_data/02_seed_fictional_demo.sql`. On the fresh demo schema this creates eight fictional assets, three analysts, two installations, two reviewed findings and two assigned tasks. Run the scripts in `sql/05_queries/` to inspect results. The referenced CVE is HIGH under CVSS 2.0, so critical reports are empty for this sample.
+4. Run `python3 -m etl.importer data/processed/demo`. Importing the same snapshot again should report five accepted rows and zero applied rows.
+5. Run `@sql/03_seed_data/02_seed_fictional_demo.sql`. On the fresh demo schema this creates eight fictional assets, three analysts, two installations, two reviewed findings and two assigned tasks. Run the scripts in `sql/05_queries/` to inspect results. The seeded findings refer to a HIGH CVE under CVSS 2.0.
 6. Run `@scripts/validate_database.sql` in a dedicated test session. The script rolls back its test rows. Run Python tests with `python3 -m unittest discover -s tests -v`.
 
 ## Live collection
