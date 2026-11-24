@@ -10,7 +10,7 @@ From the project root, copy the example configuration once and fill in both pass
 cp -n .env.example .env
 ${EDITOR:-nano} .env
 docker compose up -d --wait
-docker compose exec oracle sqlplus -L 'cvms_dev@//localhost:1521/XE'
+docker compose exec -w /workspace oracle sqlplus -L 'cvms_dev@//localhost:1521/XE'
 ```
 
 Use the development schema password from `ORACLE_PASSWORD` when SQL*Plus prompts. If you changed `ORACLE_USER`, use that username in the login command. At the `SQL>` prompt on the fresh schema, run:

@@ -32,7 +32,7 @@ jobs:
               '@sql/03_seed_data/01_seed_source.sql' \
               '@scripts/validate_database.sql' \
               'exit success'
-          } | docker compose exec -T oracle sqlplus -L "$ORACLE_USER@//localhost:1521/XE" | tee oracle-test.log
+          } | docker compose exec -T -w /workspace oracle sqlplus -L "$ORACLE_USER@//localhost:1521/XE" | tee oracle-test.log
           grep -F 'Oracle schema, view and workflow assertions passed.' oracle-test.log
           grep -F 'Oracle publication and replay assertions passed.' oracle-test.log
           if grep -Eq '^(SP2-|ORA-|PLS-)' oracle-test.log; then
@@ -77,7 +77,7 @@ jobs:
           {
             printf '%s\n' "$ORACLE_PASSWORD"
             printf '%s\n' '@sql/03_seed_data/02_seed_fictional_demo.sql' 'exit success'
-          } | docker compose exec -T oracle sqlplus -L "$ORACLE_USER@//localhost:1521/XE"
+          } | docker compose exec -T -w /workspace oracle sqlplus -L "$ORACLE_USER@//localhost:1521/XE"
           python - <<'PYTHON'
           import os
           import oracledb

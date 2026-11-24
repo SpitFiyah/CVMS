@@ -11,7 +11,6 @@ services:
       - oracle-data:/u01/app/oracle/oradata
       - ./sql:/workspace/sql:ro
       - ./scripts:/workspace/scripts:ro
-    working_dir: /workspace
     healthcheck:
       test: ["CMD", "healthcheck.sh"]
       interval: 10s
