@@ -1,0 +1,25 @@
+name: Mermaid diagrams
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Render ER and architecture diagrams
+        run: |
+          npm install --global @mermaid-js/mermaid-cli@11.12.0
+          mmdc -i docs/er-diagram.mmd -o "$RUNNER_TEMP/er-diagram.svg"
+          mmdc -i docs/er-diagram.md -o "$RUNNER_TEMP/er-diagram.md"
+          mmdc -i ARCHITECTURE.md -o "$RUNNER_TEMP/architecture.md"
+          grep -q '<svg' "$RUNNER_TEMP/er-diagram.svg"
+          grep -q 'er-diagram-1.svg' "$RUNNER_TEMP/er-diagram.md"
+          grep -q 'architecture-1.svg' "$RUNNER_TEMP/architecture.md"
